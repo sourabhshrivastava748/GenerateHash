@@ -17,6 +17,9 @@ object GenerateHashRunner {
         println("#################################################################################")
         println("\n\n\n")
 
+        val inputFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
+        val outputFile = "/meesho/distinct-mobile-1-Nov-2023-hashed.csv"
+
         val spark = SparkSession
                 .builder
                 .master("yarn")
@@ -28,7 +31,7 @@ object GenerateHashRunner {
             Map ("header" -> "true",
                 "inferSchema" -> "false",
                 "mode" -> "failfast")
-        ).csv("/meesho/distinct-mobile-1-Nov-2023.csv")
+        ).csv(inputFile)
 
         println("Total partitions of dataframe: " + dataFrame.rdd.getNumPartitions)
         dataFrame.show(false)
@@ -38,8 +41,9 @@ object GenerateHashRunner {
 
         dataFrame.select(
             col("mobile"),
-            sha256HashUdf(col("mobile")).as("genre_uppercase"))
+            sha256HashUdf(col("mobile")).as("hash"))
                 .show(false)
 
+        dataFrame.write.csv(outputFile)
     }
 }
