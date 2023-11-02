@@ -44,6 +44,9 @@ object GenerateHashRunner {
             sha256HashUdf(col("mobile")).as("hash"))
                 .show(false)
 
-        dataFrame.write.csv(outputFile)
+        dataFrame.repartition(1)
+                .write
+                .option("header", "true")
+                .csv(outputFile)
     }
 }
