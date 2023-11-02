@@ -18,7 +18,7 @@ object GenerateHashRunner {
         println("\n\n\n")
 
         val inputFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
-        val outputFile = "/meesho"
+        val outputFile = "/meesho/hashed-numbers"
 
         val spark = SparkSession
                 .builder
