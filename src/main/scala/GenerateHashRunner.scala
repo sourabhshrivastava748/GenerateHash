@@ -18,7 +18,7 @@ object GenerateHashRunner {
         println("\n\n\n")
 
         val inputFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
-        val outputFile = "/meesho/distinct-mobile-1-Nov-2023-hashed.csv"
+        val outputFile = "/meesho"
 
         val spark = SparkSession
                 .builder
@@ -39,12 +39,11 @@ object GenerateHashRunner {
         // Register sha256Hash method as UDF
         val sha256HashUdf = udf(EncryptionUtils.sha256Hash)
 
-        dataFrame.select(
+        val outputDataFrame = dataFrame.select(
             col("mobile"),
             sha256HashUdf(col("mobile")).as("hash"))
-                .show(false)
 
-        dataFrame.repartition(1)
+        outputDataFrame.repartition(1)
                 .write
                 .option("header", "true")
                 .csv(outputFile)
