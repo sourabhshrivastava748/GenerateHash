@@ -17,8 +17,9 @@ object GenerateHashRunner {
         println("#################################################################################")
         println("\n\n\n")
 
-        val inputFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
-        val outputFile = "/meesho/hashed-numbers"
+        val unifillMobileNumbersFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
+        val meeshoHashCodesFile = "/meesho/meesho_hash_codes.csv"
+//        val outputFile = "/meesho/hashed-numbers"
 
         val spark = SparkSession
                 .builder
@@ -27,25 +28,45 @@ object GenerateHashRunner {
                 .getOrCreate()
 
         println("Creating dataframe from distinct-mobile-1-Nov-2023.csv")
-        val dataFrame = spark.read.options(
+        val unifillDF = spark.read.options(
             Map ("header" -> "true",
                 "inferSchema" -> "false",
                 "mode" -> "failfast")
-        ).csv(inputFile)
+        ).csv(unifillMobileNumbersFile)
 
-        println("Total partitions of dataframe: " + dataFrame.rdd.getNumPartitions)
-        dataFrame.show(false)
+        println("Total partitions of dataframe: " + unifillDF.rdd.getNumPartitions)
+        unifillDF.show(false)
 
         // Register sha256Hash method as UDF
         val sha256HashUdf = udf(EncryptionUtils.sha256Hash)
 
-        val outputDataFrame = dataFrame.select(
+        val unifillHashedDF = unifillDF.select(
             col("mobile"),
             sha256HashUdf(col("mobile")).as("hash"))
 
-        outputDataFrame.repartition(1)
-                .write
-                .option("header", "true")
-                .csv(outputFile)
+        val meeshoDF = spark.read.options(
+            Map ("header" -> "true",
+                "inferSchema" -> "false",
+                "mode" -> "failfast")
+        ).csv(meeshoHashCodesFile)
+
+        val dataMatch = unifillHashedDF.join(meeshoDF,
+            unifillHashedDF("hash") === meeshoDF("hash"),
+        "inner")
+
+        val meeshoHashCount = meeshoDF.count()
+        val dataMatchCount = dataMatch.count()
+        val matchPercentage = (dataMatchCount / meeshoHashCount) * 100
+        matchPercentage = (matchPercentage * 1000).round / 1000.toDouble
+
+        println("#### meeshoHashCount : " + meeshoHashCount)
+        println("#### dataMatchCount : " + dataMatchCount)
+        println("#### match percentage : " + (dataMatchCount / meeshoHashCount) * 100)
+
+
+//        outputDataFrame.repartition(1)
+//                .write
+//                .option("header", "true")
+//                .csv(outputFile)
     }
 }
