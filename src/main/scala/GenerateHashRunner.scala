@@ -50,18 +50,20 @@ object GenerateHashRunner {
                 "mode" -> "failfast")
         ).csv(meeshoHashCodesFile)
 
+        meeshoDF.show(false)
+
         val dataMatch = unifillHashedDF.join(meeshoDF,
             unifillHashedDF("hash") === meeshoDF("hash"),
         "inner")
 
         val meeshoHashCount = meeshoDF.count()
         val dataMatchCount = dataMatch.count()
-        val matchPercentage = (dataMatchCount / meeshoHashCount) * 100
+        var matchPercentage = (dataMatchCount.toDouble / meeshoHashCount) * 100
         matchPercentage = (matchPercentage * 1000).round / 1000.toDouble
 
         println("#### meeshoHashCount : " + meeshoHashCount)
         println("#### dataMatchCount : " + dataMatchCount)
-        println("#### match percentage : " + (dataMatchCount / meeshoHashCount) * 100)
+        println("#### match percentage : " + matchPercentage)
 
 
 //        outputDataFrame.repartition(1)
