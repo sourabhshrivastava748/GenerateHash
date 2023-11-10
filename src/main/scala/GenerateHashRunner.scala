@@ -55,7 +55,7 @@ object GenerateHashRunner {
 
         val dataMatch = unifillHashedDF.join(meeshoDF,
             unifillHashedDF("hash") === meeshoDF("hash"),
-        "inner")
+        "inner").select("unifillHashedDF.*")
 
         dataMatch.show(200, false)
 
