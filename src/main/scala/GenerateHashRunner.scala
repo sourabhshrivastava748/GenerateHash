@@ -19,7 +19,7 @@ object GenerateHashRunner {
 
         val unifillMobileNumbersFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
         val meeshoHashCodesFile = "/meesho/meesho_hash_codes.csv"
-        val outputFileDirectory = "/meesho"
+        val outputFileDirectory = "/meesho/outputdir"
 //        val outputFile = "/meesho/hashed-numbers"
 
         val spark = SparkSession
