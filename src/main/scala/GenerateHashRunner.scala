@@ -19,6 +19,7 @@ object GenerateHashRunner {
 
         val unifillMobileNumbersFile = "/meesho/distinct-mobile-1-Nov-2023.csv"
         val meeshoHashCodesFile = "/meesho/meesho_hash_codes.csv"
+        val outputFileDirectory = "/meesho"
 //        val outputFile = "/meesho/hashed-numbers"
 
         val spark = SparkSession
@@ -56,6 +57,8 @@ object GenerateHashRunner {
             unifillHashedDF("hash") === meeshoDF("hash"),
         "inner")
 
+        dataMatch.show(200, false)
+
         val meeshoHashCount = meeshoDF.count()
         val dataMatchCount = dataMatch.count()
         var matchPercentage = (dataMatchCount.toDouble / meeshoHashCount) * 100
@@ -66,9 +69,9 @@ object GenerateHashRunner {
         println("#### match percentage : " + matchPercentage)
 
 
-//        outputDataFrame.repartition(1)
-//                .write
-//                .option("header", "true")
-//                .csv(outputFile)
+        dataMatch.repartition(1)
+                .write
+                .option("header", "true")
+                .csv(outputFileDirectory)
     }
 }
