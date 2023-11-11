@@ -48,7 +48,7 @@ object GenerateHashRunner {
 
         val unifillHashedDF = unifillDF.select(
             removePlus91Udf(col("mobile")).as("mobile"),
-            sha256HashUdf(col("mobile")).as("hash")
+            sha256HashUdf(removePlus91Udf(col("mobile"))).as("hash")
         )
 
         unifillHashedDF.show(false)
