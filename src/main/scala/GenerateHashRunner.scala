@@ -35,15 +35,23 @@ object GenerateHashRunner {
                 "mode" -> "failfast")
         ).csv(unifillMobileNumbersFile)
 
-        println("Total partitions of dataframe: " + unifillDF.rdd.getNumPartitions)
-        unifillDF.show(false)
+        // println("Total partitions of dataframe: " + unifillDF.rdd.getNumPartitions)
+        // unifillDF.show(false)
 
-        // Register sha256Hash method as UDF
+        // Register methods as UDF
         val sha256HashUdf = udf(EncryptionUtils.sha256Hash)
+        val removePlus91Udf = udf(StringUtils.removePlus91)
+
+//        val unifillHashedDF = unifillDF.select(
+//            col("mobile"),
+//            sha256HashUdf(col("mobile")).as("hash"))
 
         val unifillHashedDF = unifillDF.select(
-            col("mobile"),
-            sha256HashUdf(col("mobile")).as("hash"))
+            removePlus91Udf(col("mobile")).as("mobile"),
+            sha256HashUdf(col("mobile")).as("hash")
+        )
+
+        unifillHashedDF.show(false)
 
         val meeshoDF = spark.read.options(
             Map ("header" -> "true",
@@ -70,9 +78,9 @@ object GenerateHashRunner {
         println("#### match percentage : " + matchPercentage)
 
 
-        dataMatch.repartition(1)
-                .write
-                .option("header", "true")
-                .csv(outputFileDirectory)
+//        dataMatch.repartition(1)
+//                .write
+//                .option("header", "true")
+//                .csv(outputFileDirectory)
     }
 }
